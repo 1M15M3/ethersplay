@@ -12,22 +12,31 @@ class CreateMethods(object):
         for ins in bb.__iter__():
             inss.append(ins)
 
-        # FIXME (theo) what is 5 here?
+        # IF there is not enough instruction in the bb > not a bb dispacther 
         if len(inss) < 5:
             return None
 
-        (push4, _) = inss[-4]
+        (pushHash, _) = inss[-4]
         (eq, _) = inss[-3]
         (push, _) = inss[-2]
 
-        if not str(push4[0]).startswith('PUSH4'):
-            return None
+        if not str(pushHash[0]).startswith('PUSH'):
+            if len(inss) > 4:
+                # case where there is another instruction after the push
+                # for example a DUP
+                (mayPushHash, _ ) = inss[-5]
+                if str(mayPushHash[0]).startswith('PUSH'):
+                    pushHash = mayPushHash
+                else:
+                    return None
+            else:
+                return None
         if not str(eq[0]).startswith('EQ'):
             return None
         if not str(push[0]).startswith('PUSH'):
             return None
 
-        method = str(push4[1])
+        method = str(pushHash[1])
         # we use addr +1, to skip the jumpdest
         # the cfg is more readable like this
         addr = long(str(push[1]), 16) + 1

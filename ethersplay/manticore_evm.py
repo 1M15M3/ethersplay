@@ -268,11 +268,10 @@ class EVMDecoder(object):
         '''
         '''
         bytecode = iter(bytecode)
-        opcode = ord(next(bytecode))
+        opcode = ord(next(bytecode, '\xfe'))
         invalid = ('INVALID', 0, 0, 0, 'Unknown opcode')
         name, operand_size, pops, pushes, description = (
             EVMDecoder._table.get(opcode, invalid))
-
         instruction = EVMInstruction(opcode,
                                      name,
                                      operand_size,
